@@ -5,6 +5,11 @@ import basicShader from '../shaders/wgsl/basic-shader.wgsl'
 class Application {
 
   constructor({width, height}) {
+    if (Application.instance) {
+      return Application.instance;
+    }
+    Application.instance = this;
+
     this.ready = false;
     this.view = document.createElement('canvas');
     this.view.width = width;
@@ -44,7 +49,9 @@ class Application {
 
   update (delta) {
     if(!this.readyToRender()) return;
+
     // this.pipeline ||= this.createPipeline();
+
     // this.commandEncoder.beginRenderPass({ });
   }
 

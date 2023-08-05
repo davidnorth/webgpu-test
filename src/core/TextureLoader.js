@@ -1,30 +1,41 @@
 class TextureLoader {
 
-  constructor(device, url) {
+  constructor(url) {
     this.ready = false;
-    this.device = device;
     this.url = url;
   }
 
   async load() {
-    const response = await fetch(this.url);
-    const blob = await response.blob();
-    const imgBitmap = await createImageBitmap(blob);
+    return fetch(this.url)
+      .then(response => response.blob())
+      .then(blob => createImageBitmap(blob))
+      .then((imgBitmap) => {
+        this.imgBitmap = imgBitmap;
+        this.width = imgBitmap.width;
+        this.height = imgBitmap.height;
+        return imgBitmap;
+      });
+  }
 
-    const [width, height] = [imgBitmap.width, imgBitmap.height];
+  toTexture() {
+    if(!this.imgBitmap) throw new Error('Image not loaded')
+    const device = Application.instance.device;
+    if(!device) throw new Error('Device not ready')
+
+    const [width, height] = [this.imgBitmap.width, this.imgBitmap.height];
     this.width = width;
     this.height = height;
-  
-    const texture = this.device.createTexture({
-      size: { width, height, depth: 1 },
+
+    const texture = device.createTexture({
+      size: { width, height },
       format: 'rgba8unorm',
       usage: GPUTextureUsage.COPY_DST | GPUTextureUsage.SAMPLED,
     });
-  
-    this.device.queue.copyExternalImageToTexture(
-      { source: imgBitmap },
+
+    device.queue.copyExternalImageToTexture(
+      { source: this.imgBitmap },
       { texture },
-      [ width, height ]
+      [width, height]
     );
 
     return texture;

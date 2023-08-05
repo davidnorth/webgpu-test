@@ -7,7 +7,7 @@ class Stage {
 
   add(sprite) {
     this.children.push(sprite);
-    sprite.load(this.application.device);
+    sprite.load(this.application);
   }
 
   readyToRender() {
