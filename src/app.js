@@ -7,4 +7,10 @@ window.app = app;
 const sprite = new Sprite({src: 'doug.png'});
 app.stage.add(sprite);
 
+
+ let elapsed = 0.0;
+ app.ticker.add((delta) => {
+   elapsed += delta;
+ });
+
 document.body.appendChild(app.view);

@@ -1,5 +1,5 @@
 import Stage from "./Stage";
-
+import Ticker from "./Ticker";
 import basicShader from '../shaders/wgsl/basic-shader.wgsl'
 
 class Application {
@@ -7,12 +7,14 @@ class Application {
   constructor({width, height}) {
     this.ready = false;
     this.view = document.createElement('canvas');
-    this.view.style.backgroundColor = '#000';
     this.view.width = width;
     this.view.height = height;
     this.width = width;
     this.height = height;
+
     this.stage = new Stage(this);
+    this.ticker = new Ticker();
+    this.ticker.add(this.update.bind(this));
     this.initWebGPU();
     this.update();
   }
@@ -40,14 +42,10 @@ class Application {
     this.ready = true;
   }
 
-  update () {
-    window.requestAnimationFrame(this.update.bind(this));
+  update (delta) {
     if(!this.readyToRender()) return;
     // this.pipeline ||= this.createPipeline();
-// 
     // this.commandEncoder.beginRenderPass({ });
-
-
   }
 
   createPipeline() {
