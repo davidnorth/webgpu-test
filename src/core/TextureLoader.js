@@ -21,10 +21,10 @@ class TextureLoader {
       usage: GPUTextureUsage.COPY_DST | GPUTextureUsage.SAMPLED,
     });
   
-    device.queue.copyImageBitmapToTexture(
-      { imageBitmap: imgBitmap },
+    this.device.queue.copyExternalImageToTexture(
+      { source: imgBitmap },
       { texture },
-      { width, height, depth: 1 }
+      [ width, height ]
     );
 
     return texture;
