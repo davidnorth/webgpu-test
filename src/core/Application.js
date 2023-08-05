@@ -1,6 +1,6 @@
 import Stage from "./Stage";
 import Ticker from "./Ticker";
-import basicShader from '../shaders/wgsl/basic-shader.wgsl'
+import basicShader from "bundle-text:../shaders/wgsl/basic-shader.wgsl"
 
 class Application {
 
@@ -11,16 +11,17 @@ class Application {
     Application.instance = this;
 
     this.ready = false;
-    this.view = document.createElement('canvas');
-    this.view.width = width;
-    this.view.height = height;
+    this.prepared = false;
+    this.canvas = document.createElement('canvas');
+    this.canvas.width = width;
+    this.canvas.height = height;
     this.width = width;
     this.height = height;
 
     this.stage = new Stage(this);
     this.ticker = new Ticker();
     this.ticker.add(this.update.bind(this));
-    this.initWebGPU();
+    this.initGPU();
     this.update();
   }
 
@@ -29,7 +30,7 @@ class Application {
     return this.ready && this.stage.readyToRender();
   }
 
-  async initWebGPU() {
+  async initGPU() {
     if (!navigator.gpu) {
       throw new Error("WebGPU not supported on this browser.");
     }
@@ -38,29 +39,58 @@ class Application {
       throw new Error("No adapter found.");
     }
     this.device = await adapter.requestDevice();
-    this.context = this.view.getContext("webgpu");
+    this.context = this.canvas.getContext("webgpu");
+
+    // const swapChainFormat = "bgra8unorm"; 
     this.context.configure({
       device: this.device,
       format: navigator.gpu.getPreferredCanvasFormat(),
     });
+
     this.commandEncoder = this.device.createCommandEncoder();
     this.ready = true;
+
   }
 
   update (delta) {
-    if(!this.readyToRender()) return;
+    if(!this.readyToRender()) { return }
+    if(!this.prepared) {
+      this.stage.prepare();
+      this.prepared = true;
+      this.pipeline ||= this.createPipeline();
+      return;
+    }
 
-    // this.pipeline ||= this.createPipeline();
 
     // this.commandEncoder.beginRenderPass({ });
   }
 
   createPipeline() {
+
+    const currentTexture = this.context.getCurrentTexture();
+
+
+    const renderPassDescriptor = {
+      colorAttachments: [{
+          view: currentTexture.createView(),
+          loadValue: [0, 0, 0, 1],  // Clear to black. Adjust this value if you want to clear to a different color.
+          storeOp: 'store'  // This means the result will be stored (not discarded) after rendering.
+      }],
+    };
+
+    return;
     const basicShaderModule = this.device.createShaderModule({
-      label: "Cell shader",
+      label: "Basic shader",
       code: basicShader
     });
+
+
+    const pipelineLayout = this.device.createPipelineLayout({
+      bindGroupLayouts: [this.stage.children[0].bindGroupLayout],
+    });
+
     return this.device.createRenderPipeline({
+      layout: pipelineLayout,
       vertex: {
         module: basicShaderModule,
         entryPoint: 'main',

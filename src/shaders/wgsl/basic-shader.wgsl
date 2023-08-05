@@ -1,7 +1,3 @@
-// [[block]] struct Uniforms {
-//     transform: mat4x4<f32>;
-// };
-
 // define the output of the vertex shader which is input for the fragment shader
 struct VertexOutput {
     [[builtin(position)]] Position: vec4<f32>;

@@ -10,6 +10,10 @@ class Stage {
     sprite.load(this.application);
   }
 
+  prepare() {
+    this.children.forEach(child => child.prepare());
+  }
+
   readyToRender() {
     return this.children.every(child => child.ready);
   }

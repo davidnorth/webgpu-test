@@ -11,6 +11,6 @@ app.stage.add(sprite);
    elapsed += delta;
  });
 
-document.body.appendChild(app.view);
+document.body.appendChild(app.canvas);
 
 window.Application = Application

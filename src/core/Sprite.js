@@ -2,6 +2,7 @@ import TextureLoader from "./TextureLoader.js";
 
 const BIND_GROUP_LAYOUT = {
   entries: [
+    // texture
     {
       binding: 0,
       visibility: GPUShaderStage.FRAGMENT,
@@ -9,6 +10,7 @@ const BIND_GROUP_LAYOUT = {
         sampleType: 'float',
       },
     },
+    // sampler
     {
       binding: 1,
       visibility: GPUShaderStage.FRAGMENT,
@@ -58,35 +60,36 @@ class Sprite {
     // this.texture = this.textureLoader.toTexture();
 
 
-    // const verticies = this.getVertices();
-
-    // const vertexBuffer = this.device.createBuffer({
-    //   label: "Sprite vertices",
-    //   size: verticies.byteLength,
-    //   usage: GPUBufferUsage.VERTEX | GPUBufferUsage.COPY_DST,
-    // });
-    // this.stage.application.device.queue.writeBuffer(vertexBuffer, 0, verticies);
-
   }
 
   prepare() {
     const device = Application.instance.device;
 
-    // Assuming you've set up a sampler somewhere:
+    const verticies = this.getVertices();
+    const vertexBuffer = device.createBuffer({
+      label: "Sprite vertices",
+      size: verticies.byteLength,
+      usage: GPUBufferUsage.VERTEX | GPUBufferUsage.COPY_DST,
+    });
+    device.queue.writeBuffer(vertexBuffer, 0, verticies);
+
+
     this.sampler = device.createSampler({
       magFilter: 'linear',
       minFilter: 'linear',
     });
 
-    const bindGroupLayout = device.createBindGroupLayout(BIND_GROUP_LAYOUT);
-    this.bindGroup = device.createBindGroup({
-      layout: bindGroupLayout,
-      entries: [
-        { binding: 0, resource: this.textureLoader.toTexture().createView() },
-        { binding: 1, resource: this.sampler },
-      ],
-    });
+    this.bindGroupLayout = device.createBindGroupLayout(BIND_GROUP_LAYOUT);
 
+    const texture = this.textureLoader.toTexture();
+
+    // this.bindGroup = device.createBindGroup({
+    //   layout: this.bindGroupLayout,
+    //   entries: [
+    //     // { binding: 0, resource: texture.createView() },
+    //     // { binding: 1, resource: this.sampler },
+    //   ],
+    // });
 
   }
 

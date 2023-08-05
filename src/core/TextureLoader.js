@@ -18,6 +18,7 @@ class TextureLoader {
   }
 
   toTexture() {
+
     if(!this.imgBitmap) throw new Error('Image not loaded')
     const device = Application.instance.device;
     if(!device) throw new Error('Device not ready')
@@ -29,8 +30,11 @@ class TextureLoader {
     const texture = device.createTexture({
       size: { width, height },
       format: 'rgba8unorm',
-      usage: GPUTextureUsage.COPY_DST | GPUTextureUsage.SAMPLED,
+      usage: GPUTextureUsage.COPY_DST | GPUTextureUsage.SAMPLED | GPUTextureUsage.RENDER_ATTACHMENT,
     });
+
+    console.log('imgBitmap', this.imgBitmap);
+    console.log('texture', texture);
 
     device.queue.copyExternalImageToTexture(
       { source: this.imgBitmap },
