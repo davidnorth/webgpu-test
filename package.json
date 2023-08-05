@@ -1,0 +1,10 @@
+{
+  "devDependencies": {
+    "@parcel/transformer-raw": "^2.9.3",
+    "parcel": "^2.9.3",
+    "parcel-reporter-static-files-copy": "^1.5.0"
+  },
+  "dependencies": {
+    "lil-gui": "^0.18.2"
+  }
+}
