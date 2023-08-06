@@ -30,7 +30,7 @@ class TextureLoader {
     const texture = device.createTexture({
       size: { width, height },
       format: 'rgba8unorm',
-      usage: GPUTextureUsage.COPY_DST | GPUTextureUsage.SAMPLED | GPUTextureUsage.RENDER_ATTACHMENT,
+      usage: GPUTextureUsage.COPY_DST | GPUTextureUsage.TEXTURE_BINDING | GPUTextureUsage.RENDER_ATTACHMENT,
     });
 
     console.log('imgBitmap', this.imgBitmap);

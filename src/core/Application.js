@@ -47,7 +47,6 @@ class Application {
       format: navigator.gpu.getPreferredCanvasFormat(),
     });
 
-    this.commandEncoder = this.device.createCommandEncoder();
     this.ready = true;
 
   }
@@ -57,28 +56,34 @@ class Application {
     if(!this.prepared) {
       this.stage.prepare();
       this.prepared = true;
-      this.pipeline ||= this.createPipeline();
+      this.createPipeline();
       return;
     }
 
+    const commandEncoder = this.device.createCommandEncoder();
+    const passEncoder = commandEncoder.beginRenderPass(this.renderPassDescriptor);
+    passEncoder.setPipeline(this.renderPipeline);
+    passEncoder.setBindGroup(0, this.stage.children[0].bindGroup);
+    passEncoder.setVertexBuffer(0, this.stage.children[0].vertexBuffer);
 
-    // this.commandEncoder.beginRenderPass({ });
+    // TODO: don't hard code 6 for vertex count
+    passEncoder.draw(6);
+    passEncoder.end();
+    this.device.queue.submit([commandEncoder.finish()]);
+
+
   }
 
   createPipeline() {
-
-    const currentTexture = this.context.getCurrentTexture();
-
-
-    const renderPassDescriptor = {
+    this.renderPassDescriptor = {
       colorAttachments: [{
-          view: currentTexture.createView(),
-          loadValue: [0, 0, 0, 1],  // Clear to black. Adjust this value if you want to clear to a different color.
-          storeOp: 'store'  // This means the result will be stored (not discarded) after rendering.
+          view: this.context.getCurrentTexture().createView(),
+          clearValue: [0, 0, 0, 1],  // Clear to black. Adjust this value if you want to clear to a different color.
+          loadOp: 'clear',
+          storeOp: 'store',
       }],
     };
 
-    return;
     const basicShaderModule = this.device.createShaderModule({
       label: "Basic shader",
       code: basicShader
@@ -89,16 +94,16 @@ class Application {
       bindGroupLayouts: [this.stage.children[0].bindGroupLayout],
     });
 
-    return this.device.createRenderPipeline({
+    this.renderPipeline = this.device.createRenderPipeline({
       layout: pipelineLayout,
       vertex: {
         module: basicShaderModule,
-        entryPoint: 'main',
+        entryPoint: 'vertexMain',
         buffers: [this.stage.children[0].vertexBufferLayout],
       },
       fragment: {
         module: basicShaderModule,
-        entryPoint: 'main',
+        entryPoint: 'fragmentMain',
         targets: [
           {
             format: navigator.gpu.getPreferredCanvasFormat()
@@ -107,6 +112,7 @@ class Application {
       },
       primitive: {
         topology: 'triangle-list', 
+        // cullMode: 'back',
       },
     });
   }

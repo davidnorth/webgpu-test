@@ -66,13 +66,12 @@ class Sprite {
     const device = Application.instance.device;
 
     const verticies = this.getVertices();
-    const vertexBuffer = device.createBuffer({
+    this.vertexBuffer = device.createBuffer({
       label: "Sprite vertices",
       size: verticies.byteLength,
       usage: GPUBufferUsage.VERTEX | GPUBufferUsage.COPY_DST,
     });
-    device.queue.writeBuffer(vertexBuffer, 0, verticies);
-
+    device.queue.writeBuffer(this.vertexBuffer, 0, verticies);
 
     this.sampler = device.createSampler({
       magFilter: 'linear',
@@ -83,26 +82,27 @@ class Sprite {
 
     const texture = this.textureLoader.toTexture();
 
-    // this.bindGroup = device.createBindGroup({
-    //   layout: this.bindGroupLayout,
-    //   entries: [
-    //     // { binding: 0, resource: texture.createView() },
-    //     // { binding: 1, resource: this.sampler },
-    //   ],
-    // });
+    this.bindGroup = device.createBindGroup({
+      layout: this.bindGroupLayout,
+      entries: [
+        { binding: 0, resource: texture.createView() },
+        { binding: 1, resource: this.sampler },
+      ],
+    });
 
   }
 
   getVertices() {
     return new Float32Array([
       // tri 1 - bottom left
-      0, 0,
-      0, this.textureLoader.height,
-      0, this.textureLoader.width,
+      0, 0, 0, 0,   // Position (x, y) + UV (u, v)
+      0, this.textureLoader.height, 0, 1,
+      this.textureLoader.width, 0, 1, 0,
+
       // tri 2 - top right
-      0, this.textureLoader.height,
-      this.textureLoader.width, this.textureLoader.height,
-      this.textureLoader.width, 0
+      0, this.textureLoader.height, 0, 1,
+      this.textureLoader.width, this.textureLoader.height, 1, 1,
+      this.textureLoader.width, 0, 1, 0
     ]);
   }
 
