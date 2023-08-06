@@ -60,6 +60,8 @@ class Application {
       return;
     }
 
+    this.renderPassDescriptor.colorAttachments[0].view = this.context.getCurrentTexture().createView();
+
     const commandEncoder = this.device.createCommandEncoder();
     const passEncoder = commandEncoder.beginRenderPass(this.renderPassDescriptor);
     passEncoder.setPipeline(this.renderPipeline);
@@ -77,7 +79,7 @@ class Application {
   createPipeline() {
     this.renderPassDescriptor = {
       colorAttachments: [{
-          view: this.context.getCurrentTexture().createView(),
+          view: undefined, // need to redefine on each frame to avoid destroyed texture error
           clearValue: [0, 0, 0, 1],  // Clear to black. Adjust this value if you want to clear to a different color.
           loadOp: 'clear',
           storeOp: 'store',

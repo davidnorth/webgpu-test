@@ -28,7 +28,7 @@ class TextureLoader {
     this.height = height;
 
     const texture = device.createTexture({
-      size: { width, height },
+      size: [ width, height, 1 ],
       format: 'rgba8unorm',
       usage: GPUTextureUsage.COPY_DST | GPUTextureUsage.TEXTURE_BINDING | GPUTextureUsage.RENDER_ATTACHMENT,
     });

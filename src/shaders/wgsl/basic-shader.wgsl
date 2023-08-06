@@ -22,8 +22,8 @@ fn vertexMain(@location(0) position : vec2<f32>, @location(1) texCoords : vec2<f
 
 
 
-// @group(0) @binding(0) var myTexture: texture_2d<f32>;
-// @group(0) @binding(1) var mySampler: sampler;
+@group(0) @binding(0) var myTexture: texture_2d<f32>;
+@group(0) @binding(1) var mySampler: sampler;
 
 struct FragmentInput {
   @location(0) fragUV: vec2<f32>,
@@ -31,12 +31,7 @@ struct FragmentInput {
 
 @fragment
 fn fragmentMain(input: FragmentInput) -> @location(0) vec4<f32> {
-
-  // @location(0) fragUV: vec2<f32>,
-  // @location(1) fragPosition: vec4<f32>
-  // return textureSample(myTexture, mySampler, fragUV) * fragPosition;
-
-    // output.color = myTexture.sample(sampler, input.texCoords);
-    
-    return vec4<f32>(1.0, 0.0, 0.0, 1.0);
+    return textureSample(myTexture, mySampler, input.fragUV);
+    // return vec4<f32>(1.0, 1.0, 0.0, 1.0);
+    // return vec4<f32>(input.fragUV, 1.0, 1.0);
 }

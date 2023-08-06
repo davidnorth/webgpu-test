@@ -1,3 +1,4 @@
+import { mat4, vec3 } from 'wgpu-matrix';
 import TextureLoader from "./TextureLoader.js";
 
 const BIND_GROUP_LAYOUT = {
@@ -65,6 +66,7 @@ class Sprite {
   prepare() {
     const device = Application.instance.device;
 
+    console.log(this.getVertices());
     const verticies = this.getVertices();
     this.vertexBuffer = device.createBuffer({
       label: "Sprite vertices",
@@ -93,16 +95,21 @@ class Sprite {
   }
 
   getVertices() {
+    // const width = this.textureLoader.width;
+    // const height = this.textureLoader.height;
+    const width = 1;
+    const height = 1;
+
     return new Float32Array([
       // tri 1 - bottom left
       0, 0, 0, 0,   // Position (x, y) + UV (u, v)
-      0, this.textureLoader.height, 0, 1,
-      this.textureLoader.width, 0, 1, 0,
+      0, height, 0, 1,
+      width, 0, 1, 0,
 
       // tri 2 - top right
-      0, this.textureLoader.height, 0, 1,
-      this.textureLoader.width, this.textureLoader.height, 1, 1,
-      this.textureLoader.width, 0, 1, 0
+      0, height, 0, 1,
+      width, height, 1, 1,
+      width, 0, 1, 0
     ]);
   }
 
