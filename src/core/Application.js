@@ -1,6 +1,8 @@
+import { mat4, mat3, vec2, vec3 } from 'wgpu-matrix';
 import Stage from "./Stage";
 import Ticker from "./Ticker";
-import basicShader from "bundle-text:../shaders/wgsl/basic-shader.wgsl"
+import basicVertex from "bundle-text:../shaders/wgsl/basic-vertex.wgsl"
+import basicFragment from "bundle-text:../shaders/wgsl/basic-fragment.wgsl"
 
 class Application {
 
@@ -49,9 +51,13 @@ class Application {
 
     this.ready = true;
 
+    this.elapsed = 0.0;
+
   }
 
   update (delta) {
+    this.elapsed += delta;
+
     if(!this.readyToRender()) { return }
     if(!this.prepared) {
       this.stage.prepare();
@@ -60,11 +66,30 @@ class Application {
       return;
     }
 
+    const scaleRatio = 2/700; // clip space width / canvas width
+    const transformMatrix = mat3.identity();
+    mat3.translate(transformMatrix, [100 * scaleRatio, 100 * scaleRatio], transformMatrix)
+    mat3.scale(transformMatrix, [scaleRatio, scaleRatio], transformMatrix)
+  
+    // const transformMatrix = mat3.scaling([scaleRatio, scaleRatio]);
+
+    //  mat3.scaling([scaleRatio, scaleRatio]);
+    // mat3.translation([100, 100], transformMatrix);
+
+    this.device.queue.writeBuffer(
+      this.stage.children[0].uniformBuffer,
+      0,
+      transformMatrix.buffer,
+      transformMatrix.byteOffset,
+      transformMatrix.byteLength
+    )
+
     this.renderPassDescriptor.colorAttachments[0].view = this.context.getCurrentTexture().createView();
 
     const commandEncoder = this.device.createCommandEncoder();
     const passEncoder = commandEncoder.beginRenderPass(this.renderPassDescriptor);
     passEncoder.setPipeline(this.renderPipeline);
+
     passEncoder.setBindGroup(0, this.stage.children[0].bindGroup);
     passEncoder.setVertexBuffer(0, this.stage.children[0].vertexBuffer);
 
@@ -86,10 +111,16 @@ class Application {
       }],
     };
 
-    const basicShaderModule = this.device.createShaderModule({
-      label: "Basic shader",
-      code: basicShader
+    const basicVertexShaderModule = this.device.createShaderModule({
+      label: "Basic shader vertex",
+      code: basicVertex
     });
+
+    const basicFragmentShaderModule = this.device.createShaderModule({
+      label: "Basic shader fragment",
+      code: basicFragment
+    });
+
 
 
     const pipelineLayout = this.device.createPipelineLayout({
@@ -99,12 +130,12 @@ class Application {
     this.renderPipeline = this.device.createRenderPipeline({
       layout: pipelineLayout,
       vertex: {
-        module: basicShaderModule,
+        module: basicVertexShaderModule,
         entryPoint: 'vertexMain',
         buffers: [this.stage.children[0].vertexBufferLayout],
       },
       fragment: {
-        module: basicShaderModule,
+        module: basicFragmentShaderModule,
         entryPoint: 'fragmentMain',
         targets: [
           {

@@ -33,9 +33,6 @@ class TextureLoader {
       usage: GPUTextureUsage.COPY_DST | GPUTextureUsage.TEXTURE_BINDING | GPUTextureUsage.RENDER_ATTACHMENT,
     });
 
-    console.log('imgBitmap', this.imgBitmap);
-    console.log('texture', texture);
-
     device.queue.copyExternalImageToTexture(
       { source: this.imgBitmap },
       { texture },
